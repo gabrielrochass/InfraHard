@@ -1,86 +1,86 @@
-
-# MIPS Assembly code to calculate mod(a, b)
+# Código Assembly MIPS para calcular mod(a, b)
 
 .data
-    prompt_a: .asciiz "Enter value for a: "
-    prompt_b: .asciiz "Enter value for b: "
-    result: .asciiz "Result: "
+    prompt_a: .asciiz "Digite o valor de a: "
+    prompt_b: .asciiz "Digite o valor de b: "
+    result: .asciiz "Resultado: "
 
 .text
 .globl main
 
 main:
-    # Prompt user for input
-    li $v1, 4
+    # Solicitar entrada do usuário
+    li $v0, 4
     la $a0, prompt_a
     syscall
 
-    # Read value for a
-    li $v1, 5
+    # Ler valor de a
+    li $v0, 5
     syscall
-    move $a0, $v1
+    move $a0, $v0
 
-    # Prompt user for input
-    li $v1, 4
+    # Solicitar entrada do usuário
+    li $v0, 4
     la $a0, prompt_b
     syscall
 
-    # Read value for b
-    li $v1, 5
+    # Ler valor de b
+    li $v0, 5
     syscall
-    move $a1, $v1
+    move $a1, $v0
 
-    # Call mod function
+    # Chamar a função mod
     jal mod
 
-    # Print result
-    li $v1, 4
+    # Imprimir resultado
+    li $v0, 4
     la $a0, result
     syscall
 
-    move $a0, $v1
-    li $v1, 1
+    move $a0, $v0
+    li $v0, 1
     syscall
 
-    # Exit program
-    li $v1, 10
+    # Encerrar programa
+    li $v0, 10
     syscall
 
 mod:
-    # Save return address
+    # Salvar endereço de retorno
     sw $ra, 0($sp)
     addiu $sp, $sp, -4
 
-    # Check if a is negative
+    # Verificar se a é negativo
     slti $t0, $a0, 0
-    beqz $t0, else
+    beqz $t0, senao
 
-    # If a is negative, store 1 in $v1 and exit
-    li $v1, 1
-    j end
+    # Se a for negativo, armazenar 1 em $v0 e sair
+    li $v0, 1
+    j fim
 
-else:
-    # Check if a < b
+senao:
+    # Verificar se a < b
     slt $t0, $a0, $a1
-    beqz $t0, else2
+    beqz $t0, senao2
 
-    # If a < b, return a
-    move $v1, $a0
-    j end
+    # Se a < b, retornar a
+    move $v0, $a0
+    j fim
 
-else2:
-    # Calculate mod(a-b, b)
+senao2:
+    # Calcular mod(a-b, b)
     sub $a0, $a0, $a1
     jal mod
-    move $a0, $v1
+    move $a0, $v0
     move $a1, $a1
     jal mod
 
-end:
-    # Restore return address
+fim:
+    # Restaurar endereço de retorno
     lw $ra, 0($sp)
     addiu $sp, $sp, 4
 
-    # Return to caller
+    # Retornar ao chamador
     jr $ra
+    
 
