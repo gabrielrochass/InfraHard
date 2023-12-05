@@ -1,4 +1,3 @@
-print(str2)
 .data
 str1: .space 100    # string de entrada
 str2: .space 100    # string de saída
@@ -18,6 +17,8 @@ main:
 
     # percorrer a string de entrada
     la $t0, str1
+    la $t2, str2 // Add this line to initialize $t2
+
 loop:
     lb $t1, 0($t0)      # carrega o caractere atual
     beqz $t1, end       # verifica se chegou ao final da string
@@ -42,11 +43,7 @@ end:
     la $a0, str2
     syscall
 
-    # imprime a quantidade de letras maiúsculas
-    li $v0, 1
-    move $a0, $v1
-    syscall
-
     # encerra o programa
     li $v0, 10
     syscall
+
