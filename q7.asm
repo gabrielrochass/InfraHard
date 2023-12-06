@@ -1,19 +1,38 @@
 # Definindo as variáveis
 .data
 dividendo:  .word 0          # Armazena o dividendo
-divisor:    .word 10         # Armazena o divisor
+divisor:    .word 0          # Armazena o divisor
 RESULT:     .word 0          # Armazena o resultado (quociente)
-REMAINDER:  .word 0          # Armazena o resto
+input_msg:  .asciiz "Digite o dividendo: "
+input_msg2: .asciiz "Digite o divisor: "
+newline:    .asciiz "\n"
 
 .text
 .globl main
 
 main:
-    lw $t0, dividendo        # Carrega o dividendo em $t0
-    lw $t1, divisor          # Carrega o divisor em $t1
+    # Mensagem para entrada do dividendo
+    li $v0, 4
+    la $a0, input_msg
+    syscall
 
-    li $t2, 0                # Inicializa o registrador $t2 para o quociente
-    li $t3, 0                # Inicializa o registrador $t3 para o resto
+    # Recebendo o dividendo
+    li $v0, 5
+    syscall
+    move $t0, $v0  # Armazena o dividendo em $t0
+
+    # Mensagem para entrada do divisor
+    li $v0, 4
+    la $a0, input_msg2
+    syscall
+
+    # Recebendo o divisor
+    li $v0, 5
+    syscall
+    move $t1, $v0  # Armazena o divisor em $t1
+
+    li $t2, 0       # Inicializa o registrador $t2 para o quociente
+    li $t3, 0       # Inicializa o registrador $t3 para o resto
 
     # Verifica se o dividendo é zero
     beq $t0, $zero, zero_dividend
@@ -65,12 +84,8 @@ main:
         li $v0, 1              # Código da syscall para imprimir inteiro
         syscall
 
-        li $v0, 11             # Código da syscall para imprimir espaço
-        li $a0, ' '            # Espaço em ASCII
-        syscall
-
-        lw $a0, REMAINDER      # Carrega o resto para imprimir
-        li $v0, 1              # Código da syscall para imprimir inteiro
+        li $v0, 4              # Código da syscall para imprimir string
+        la $a0, newline        # Carrega a quebra de linha
         syscall
 
         j exit_program
