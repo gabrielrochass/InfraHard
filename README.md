@@ -1,0 +1,1 @@
+Repositório destinado ao armazenamento dos códigos das questões estudadas durante o curso de Infraestrutura de Hardware, também conhecido como Arquitetura de Computadores, lecionado pelo professor Adriano Sarmento no Centro de Informática (CIn) da UFPE.
