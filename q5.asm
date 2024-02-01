@@ -1,12 +1,12 @@
 .data
-    space: .word 0            # Espaço na memória compartilhada
+    memory: .word 0            # Espaço na memória compartilhada
     success_writes: .word 0   # Contador de escritas bem-sucedidas
     success_reads: .word 0    # Contador de leituras bem-sucedidas
 
 .text
 main:
     # Inicialização do produtor e do consumidor
-    la $a0, space
+    la $a0, memory
     la $a1, success_writes
     la $a2, success_reads
 
@@ -45,3 +45,4 @@ consumer:
 
     # Fim do programa
     jr $ra
+

@@ -31,3 +31,14 @@ Se a operação sc for bem-sucedida, o produtor incrementa seu contador de escri
 O consumidor tenta ler um valor da memória somente se houver algum valor presente.
 Ele carrega o valor da memória com ll, verifica se é válido e, em caso afirmativo, remove o valor da memória.
 Se a operação de leitura for bem-sucedida, o consumidor incrementa seu contador de leituras bem-sucedidas.
+
+---------------
+FUNÇÕES UTILIZADAS NO CÓDIGO:
+1. sw (Store Word): Armazena um valor da CPU na memória.
+2. beq (Branch if Equal): Desvia o fluxo de execução para o destino especificado se os dois registradores fornecidos forem iguais.
+3. j (Jump): Salta para o endereço especificado.
+4. jr (Jump Register): Salta para o endereço contido no registrador especificado.
+5. jal (Jump and Link): Salta para o endereço especificado e armazena o endereço de retorno (o endereço da próxima instrução após o jal) no registrador $ra (registrador de retorno).
+6. addi (Add Immediate): Adiciona um valor imediato a um registrador.
+7. sc (Store Conditional): Condição de armazenamento. Tenta armazenar um valor em um endereço de memória. Se a operação for bem-sucedida, o registrador de destino é definido como 1, caso contrário, é definido como 0.
+8. ll (Load Linked): Carrega um valor da memória para um registrador. Essa operação é "vinculada" a uma operação de armazenamento condicional, para que a CPU possa verificar se a memória foi modificada desde a última leitura.
