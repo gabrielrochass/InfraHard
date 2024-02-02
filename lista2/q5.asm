@@ -1,6 +1,6 @@
 .data
     valor: .word 0
-    mutex: .word 0
+    mutex: .word 1
     contador_escritas: .word 0
     contador_leituras: .word 0
     memoria_compartilhada: .space 4
@@ -17,7 +17,6 @@ main:
     # Inicializando a memória compartilhada
     li $t0, 0
     sw $t0, valor
-    sw $t0, mutex
     sw $t0, contador_escritas
     sw $t0, contador_leituras
 
@@ -42,15 +41,13 @@ produtor_thread:
     # Loop infinito do produtor
     produtor_loop:
         # Tentando adquirir o mutex
-        li $v0, 1
         lw $t0, mutex
-        beqz $t0, mutex_acquired
+        beqz $t0, mutex_busy_produtor
 
-        # Espaço de memória ocupado, tentando novamente
-        li $v0, 0
-        j produtor_loop
+        # Mutex livre, prosseguindo
+        li $t0, 0
+        sw $t0, mutex
 
-    mutex_acquired:
         # Escrevendo o valor na memória compartilhada
         li $t0, 42
         sw $t0, valor
@@ -61,25 +58,36 @@ produtor_thread:
         sw $t0, contador_escritas
 
         # Imprimindo mensagem de sucesso
-        la $a0, msg_produtor_sucesso
         li $v0, 4
+        la $a0, msg_produtor_sucesso
         syscall
 
+        # Liberando o mutex
+        li $t0, 1
+        sw $t0, mutex
+
+        # Espera um pouco antes de continuar (para simular um ambiente concorrente)
+        li $v0, 33
+        li $a0, 100000
+        syscall
+
+        j produtor_loop
+
+    mutex_busy_produtor:
+        # Esperando o mutex
         j produtor_loop
 
 consumidor_thread:
     # Loop infinito do consumidor
     consumidor_loop:
         # Tentando adquirir o mutex
-        li $v0, 1
         lw $t0, mutex
-        beqz $t0, mutex_acquired_consumidor
+        beqz $t0, mutex_busy_consumidor
 
-        # Espaço de memória vazio, tentando novamente
-        li $v0, 0
-        j consumidor_loop
+        # Mutex livre, prosseguindo
+        li $t0, 0
+        sw $t0, mutex
 
-    mutex_acquired_consumidor:
         # Lendo o valor da memória compartilhada
         lw $t0, valor
 
@@ -87,19 +95,46 @@ consumidor_thread:
         beqz $t0, valor_nulo
 
         # Imprimindo o valor lido
-        la $a0, msg_consumidor_leitura
         li $v0, 4
+        la $a0, msg_consumidor_leitura
         syscall
         move $a0, $t0
         li $v0, 1
         syscall
 
+        # Incrementando o contador de leituras
+        lw $t0, contador_leituras
+        addi $t0, $t0, 1
+        sw $t0, contador_leituras
+
+        # Liberando o mutex
+        li $t0, 1
+        sw $t0, mutex
+
+        # Espera um pouco antes de continuar (para simular um ambiente concorrente)
+        li $v0, 33
+        li $a0, 100000
+        syscall
+
+        j consumidor_loop
+
+    mutex_busy_consumidor:
+        # Esperando o mutex
         j consumidor_loop
 
     valor_nulo:
+        # Liberando o mutex
+        li $t0, 1
+        sw $t0, mutex
+
         # Imprimindo mensagem de espaço de memória vazio
-        la $a0, msg_consumidor_vazio
         li $v0, 4
+        la $a0, msg_consumidor_vazio
+        syscall
+
+        # Espera um pouco antes de continuar (para simular um ambiente concorrente)
+        li $v0, 33
+        li $a0, 100000
         syscall
 
         j consumidor_loop
