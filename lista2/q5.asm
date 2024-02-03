@@ -1,6 +1,7 @@
 .data
     valor: .word 0
     mutex: .word 1
+    sinal_escrita: .word 0
     contador_escritas: .word 0
     contador_leituras: .word 0
     memoria_compartilhada: .space 4
@@ -57,6 +58,15 @@ main:
 produtor_thread:
     # Loop infinito do produtor
     produtor_loop:
+        # Verificando se o contador de escritas é igual a 12
+        lw $t0, contador_escritas
+        li $t1, 12
+        bne $t0, $t1, continuar_escrita
+
+        # Se for, sair do loop
+        j fim_escrita
+
+    continuar_escrita:
         # Tentando adquirir o mutex
         lw $t0, mutex
         beqz $t0, mutex_busy_produtor
@@ -65,9 +75,24 @@ produtor_thread:
         li $t0, 0
         sw $t0, mutex
 
+        # Verificando se o consumidor leu o valor
+        lw $t0, sinal_escrita
+        beqz $t0, pode_escrever
+
+        # Liberando o mutex
+        li $t0, 1
+        sw $t0, mutex
+
+        j produtor_loop
+
+    pode_escrever:
         # Escrevendo o valor na memória compartilhada
         li $t0, 42
         sw $t0, valor
+
+        # Resetando o sinal de escrita
+        li $t0, 0
+        sw $t0, sinal_escrita
 
         # Liberando o mutex
         li $t0, 1
@@ -94,6 +119,9 @@ produtor_thread:
         # Esperando o mutex
         j produtor_loop
 
+fim_escrita:
+    jr $ra
+
 consumidor_thread:
     # Loop infinito do consumidor
     consumidor_loop:
@@ -119,14 +147,18 @@ consumidor_thread:
         li $v0, 1
         syscall
 
-        # Incrementando o contador de leituras
-        lw $t0, contador_leituras
-        addi $t0, $t0, 1
-        sw $t0, contador_leituras
+        # Setando o sinal de leitura para 1
+        li $t0, 1
+        sw $t0, sinal_escrita
 
         # Liberando o mutex
         li $t0, 1
         sw $t0, mutex
+
+        # Incrementando o contador de leituras
+        lw $t0, contador_leituras
+        addi $t0, $t0, 1
+        sw $t0, contador_leituras
 
         # Espera um pouco antes de continuar (para simular um ambiente concorrente)
         li $v0, 33
@@ -143,11 +175,6 @@ consumidor_thread:
         # Liberando o mutex
         li $t0, 1
         sw $t0, mutex
-
-        # Imprimindo mensagem de espaço de memória vazio
-        li $v0, 4
-        la $a0, msg_consumidor_vazio
-        syscall
 
         # Espera um pouco antes de continuar (para simular um ambiente concorrente)
         li $v0, 33
