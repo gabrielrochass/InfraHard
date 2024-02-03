@@ -41,50 +41,46 @@ main:
 
 produtor_thread:
     produtor_loop:
-        # Verificando se o contador de escritas é igual a 100 -> só para não ficar em loop infinito
+        # Verificando se o contador de escritas é igual a 12
         lw $t0, contador_escritas
         li $t1, 12
-        bne $t0, $t1, continuar_escrita
+        beq $t0, $t1, fim_escrita
 
-        # Se for, sair do loop
-        j fim_escrita
-
-    continuar_escrita:
         # Tentando adquirir o mutex
-        lw $t0, mutex
-        beqz $t0, mutex_busy_produtor
+        lw $t2, mutex
+        beqz $t2, mutex_busy_produtor
 
         # Mutex livre, prosseguindo
-        li $t0, 0
-        sw $t0, mutex
+        li $t2, 0
+        sw $t2, mutex
 
         # Verificando se o consumidor leu o valor
-        lw $t0, sinal_escrita
-        beqz $t0, pode_escrever
+        lw $t2, sinal_escrita
+        beqz $t2, pode_escrever
 
         # Liberando o mutex
-        li $t0, 1
-        sw $t0, mutex
+        li $t2, 1
+        sw $t2, mutex
 
         j produtor_loop
 
     pode_escrever:
         # Escrevendo o valor na memória compartilhada
-        li $t0, 42
-        sw $t0, valor
+        li $t2, 42
+        sw $t2, valor
 
         # Resetando o sinal de escrita
-        li $t0, 0
-        sw $t0, sinal_escrita
+        li $t2, 0
+        sw $t2, sinal_escrita
 
         # Liberando o mutex
-        li $t0, 1
-        sw $t0, mutex
+        li $t2, 1
+        sw $t2, mutex
 
-        # Incrementando o contador de escritas ($t0 = contador_escritas)
-        lw $t0, contador_escritas
-        addi $t0, $t0, 1
-        sw $t0, contador_escritas
+        # Incrementando o contador de escritas
+        lw $t2, contador_escritas
+        addi $t2, $t2, 1
+        sw $t2, contador_escritas
 
         # Espera um pouco antes de continuar (para simular um ambiente concorrente)
         li $v0, 33
@@ -124,10 +120,10 @@ consumidor_thread:
         li $t0, 1
         sw $t0, mutex
 
-        # Incrementando o contador de leituras ($t0 = contador_leituras)
-        lw $t0, contador_leituras
-        addi $t0, $t0, 1
-        sw $t0, contador_leituras
+        # Incrementando o contador de leituras
+        lw $t1, contador_leituras
+        addi $t1, $t1, 1
+        sw $t1, contador_leituras
 
         # Espera um pouco antes de continuar (para simular um ambiente concorrente)
         li $v0, 33
