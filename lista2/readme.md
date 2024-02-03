@@ -42,3 +42,61 @@ FUNÇÕES UTILIZADAS NO CÓDIGO:
 6. addi (Add Immediate): Adiciona um valor imediato a um registrador.
 7. sc (Store Conditional): Condição de armazenamento. Tenta armazenar um valor em um endereço de memória. Se a operação for bem-sucedida, o registrador de destino é definido como 1, caso contrário, é definido como 0.
 8. ll (Load Linked): Carrega um valor da memória para um registrador. Essa operação é "vinculada" a uma operação de armazenamento condicional, para que a CPU possa verificar se a memória foi modificada desde a última leitura.
+
+-----------------------------------------
+QUESTION 7
+(2,5) Observe o código em assembly MIPS abaixo (considere que o código será executado em um processador pipeline de cinco estágios com um slot para Delayed Branch e com forwarding MEM -> EX):
+
+(0,35) Transcreva o assembly acima para o pseudocódigo de sua preferência.
+(0,1) Indique quais instruções não afetam o comportamento observável do programa.
+(0,1) Indique quais instruções podem ser convertidas em instruções que usam menos ciclos.
+(0,1) Indique quais instruções são repetidas desnecessariamente dentro de loops.
+(0,1) Indique quais instruções não afetam a execução de nenhuma outra instrução.
+(1,0) Utilize as informações listadas nas questões anteriores para otimizar o código o máximo possível, reduzindo os ciclos por instrução ao mínimo. Lembre-se de reordenar instruções para evitar stalls causados por conflitos estruturais e de dados.
+(0,75) Faça o diagrama multiciclo da pipeline e calcule os CPI.
+
+-> entendendo o codigo:
+
+addi $a0, $zero, 5 = $a0 <- $zero + 5
+add $t2, $zero, $s0 = $t2 <- $zero + $s0
+
+rotulos sao utilizados para estruturar o fluxo de controle de um programa -> usadas em loops e condicionais. n tem efeito sobre a execucao do codigo (apenas marcadores). pode pular para partes especificas do codigo
+
+begin_loop: rotulo de inicio de loop
+blt $t0, $t4, if_end = pula para o rotudo if_end se $t0 < $t4
+
+if_end:fim do bloco condicional iniciado pela instrucao blt
+mult $s0, $t0 = $s0 x $t0 e armazena o resultado em um par de registradore sespeciais (HI e LO)
+mflo $s0 = LO -> $s0
+
+bne $t0, $a0, begin_loop = pula para begin_loop se $t0 != $a0
+
+pseudocodigo:
+// Inicializar variáveis
+$a0 = 5
+$s0 = 1
+$s2 = $s1 + 3
+$t2 = $s0
+$t3 = $s0
+$s2 = 32
+
+// Início do loop
+begin_loop:
+$t4 = 2
+$t0 = $t0 + 1
+if $t0 < $t4, vá para if_end
+
+$t3 = $t1 + $t2
+$s1 = $s1 + $t2
+$t1 = $t2
+$t2 = $t3
+
+if_end:
+$s0 = $s0 * $t0
+$s0 = $lo
+$s1 = $t1
+se $t0 != $a0, vá para begin_loop
+
+$s3 = $s1 + $s0
+$s2 = $s1 * $s2
+$s2 = $s2 + $s0
