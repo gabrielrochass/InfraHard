@@ -7,11 +7,6 @@
     memoria_compartilhada: .space 4
     thread_produtor: .space 4
     thread_consumidor: .space 4
-    msg_produtor_sucesso: .asciiz "Produtor escreveu com sucesso.\n"
-    msg_consumidor_leitura: .asciiz "Consumidor leu: "
-    msg_consumidor_vazio: .asciiz "Espaço de memória vazio. Tentando novamente.\n"
-    msg_contador_escritas: .asciiz "Número de escritas bem-sucedidas: "
-    msg_contador_leituras: .asciiz "Número de leituras bem-sucedidas: "
 
 .text
 .globl main
@@ -37,19 +32,8 @@ main:
     jal wait_threads
 
     # Exibindo o número de escritas e leituras bem-sucedidas
-    li $v0, 4
-    la $a0, msg_contador_escritas
-    syscall
     lw $a0, contador_escritas
-    li $v0, 1
-    syscall
-
-    li $v0, 4
-    la $a0, msg_contador_leituras
-    syscall
-    lw $a0, contador_leituras
-    li $v0, 1
-    syscall
+    lw $a1, contador_leituras
 
     # Finalizando o programa
     li $v0, 10
@@ -103,11 +87,6 @@ produtor_thread:
         addi $t0, $t0, 1
         sw $t0, contador_escritas
 
-        # Imprimindo mensagem de sucesso
-        li $v0, 4
-        la $a0, msg_produtor_sucesso
-        syscall
-
         # Espera um pouco antes de continuar (para simular um ambiente concorrente)
         li $v0, 33
         li $a0, 100000
@@ -138,14 +117,6 @@ consumidor_thread:
 
         # Verificando se o valor é zero
         beqz $t0, valor_nulo
-
-        # Imprimindo o valor lido
-        li $v0, 4
-        la $a0, msg_consumidor_leitura
-        syscall
-        move $a0, $t0
-        li $v0, 1
-        syscall
 
         # Setando o sinal de leitura para 1
         li $t0, 1
