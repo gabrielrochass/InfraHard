@@ -9,6 +9,8 @@
     msg_produtor_sucesso: .asciiz "Produtor escreveu com sucesso.\n"
     msg_consumidor_leitura: .asciiz "Consumidor leu: "
     msg_consumidor_vazio: .asciiz "Espaço de memória vazio. Tentando novamente.\n"
+    msg_contador_escritas: .asciiz "Número de escritas bem-sucedidas: "
+    msg_contador_leituras: .asciiz "Número de leituras bem-sucedidas: "
 
 .text
 .globl main
@@ -33,6 +35,21 @@ main:
     # Aguardando as threads terminarem
     jal wait_threads
 
+    # Exibindo o número de escritas e leituras bem-sucedidas
+    li $v0, 4
+    la $a0, msg_contador_escritas
+    syscall
+    lw $a0, contador_escritas
+    li $v0, 1
+    syscall
+
+    li $v0, 4
+    la $a0, msg_contador_leituras
+    syscall
+    lw $a0, contador_leituras
+    li $v0, 1
+    syscall
+
     # Finalizando o programa
     li $v0, 10
     syscall
@@ -52,6 +69,10 @@ produtor_thread:
         li $t0, 42
         sw $t0, valor
 
+        # Liberando o mutex
+        li $t0, 1
+        sw $t0, mutex
+
         # Incrementando o contador de escritas
         lw $t0, contador_escritas
         addi $t0, $t0, 1
@@ -61,10 +82,6 @@ produtor_thread:
         li $v0, 4
         la $a0, msg_produtor_sucesso
         syscall
-
-        # Liberando o mutex
-        li $t0, 1
-        sw $t0, mutex
 
         # Espera um pouco antes de continuar (para simular um ambiente concorrente)
         li $v0, 33
