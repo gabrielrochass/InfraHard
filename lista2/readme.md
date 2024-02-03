@@ -100,3 +100,13 @@ se $t0 != $a0, vá para begin_loop
 $s3 = $s1 + $s0
 $s2 = $s1 * $s2
 $s2 = $s2 + $s0
+
+---------------------
+nao afetam a execucao de outras instrucoes:
+
+addi $s2, $s1, 3
+add $t3, $zero, $s0
+add $s1, $s1, $t2
+add $t2, $zero, $t3
+add $s3, $s1, $s0
+add $s2, $s2, $s0

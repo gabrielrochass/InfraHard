@@ -50,3 +50,25 @@ se $t0 != $a0, vá para begin_loop
 $s3 = $s1 + $s0
 $s2 = $s1 * $s2
 $s2 = $s2 + $s0
+
+-----------------
+# nao afeta o comportamento observavel do programa
+# Uma instrução que "não afeta o comportamento observável" do programa é uma instrução cuja remoção não mudaria a saída ou os efeitos colaterais do programa.
+addi $a0, $zero, 5
+addi $s0, $zero, 1
+add $t2, $zero, $s0
+add $t3, $zero, $s0
+addi $t4, $zero, 2
+add $t0, $t0, 1
+
+# Essas instruções estão apenas inicializando ou incrementando valores de registradores, mas esses registradores ($a0, $s0, $t2, $t3, $t4, $t0) não são usados em nenhuma operação subsequente que afetaria a saída ou os efeitos colaterais do programa.
+
+---------------------
+#nao afetam a execucao de outras instrucoes:
+
+addi $s2, $s1, 3
+add $t3, $zero, $s0
+add $s1, $s1, $t2
+add $t2, $zero, $t3
+add $s3, $s1, $s0
+add $s2, $s2, $s0
